@@ -1,179 +1,125 @@
 # PageTurner Bookstore
 
-An online bookstore built with Laravel 12, Tailwind CSS, and Alpine.js. Features enterprise-grade authentication (email verification, 2FA), role-based dashboards, email notifications, and policy-based authorization.
+An online bookstore built with **Laravel**, **Tailwind CSS**, and **Alpine.js**. Browse books, add to cart, place orders, write reviews, and manage everything with role-based dashboards.
+
+**Repository:** https://github.com/Jugskn/pageturner-bookstore
 
 ---
 
-## Setup Instructions
+## Features
 
-### 1. Prerequisites
+### Customer Features
+| Feature | Description |
+|--------|-------------|
+| **Browse & Search** | View all books, filter by category (Fiction, Science & Technology, History & Politics, etc.) |
+| **Shopping Cart** | Add multiple books to cart, adjust quantities, remove items — session-based |
+| **Place Order** | Checkout with shipping address; orders start as **Shipped** immediately |
+| **My Orders** | View order history, status, items, and totals |
+| **Order Actions** | **Cancel Order** (pending/shipped), **Order Received** → marks complete, **Write a Review** or **Edit Review**, **Buy Again** (re-adds items to cart) |
+| **Reviews** | Rate books 1–5 stars and add comments; edit existing reviews |
+| **My Account** | Dashboard with order summary, recent purchases, reviews, and account status |
+| **Profile & Security** | Edit name/email, change password, enable/disable 2FA |
+| **Notifications** | Bell icon in nav bar shows order placed and status updates; mark as read |
 
-- **PHP** >= 8.2
-- **Composer**
-- **Node.js** >= 18 and **npm**
-- **MySQL** (running on port 3306)
-- **Mail driver** — configure a mail provider (e.g., Mailtrap, Mailpit, SMTP) in `.env` for email verification, password resets, 2FA codes, and order notifications
+### Admin Features
+| Feature | Description |
+|--------|-------------|
+| **Admin Dashboard** | Stats (users, books, categories, orders), order status summary, recent orders & reviews |
+| **Manage Books** | Add, edit, delete books; toggle status (Available / Sold) |
+| **Manage Categories** | Full CRUD for book categories |
+| **View Orders** | See all customer orders with details |
+| **Update Order Status** | Set status to Pending, Shipped, Completed, or Cancelled |
 
-### 2. Clone and Install Dependencies
+### Authentication & Security
+| Feature | Description |
+|--------|-------------|
+| **Email Verification** | New users verify email before placing orders or writing reviews |
+| **Password Reset** | Forgot password → email link → set new password |
+| **Two-Factor Auth (2FA)** | Optional email OTP; enable/disable from profile |
+| **Login Rate Limiting** | Throttled attempts to prevent brute force |
+| **Logout Other Devices** | Changing password invalidates all other sessions |
+
+### Email Notifications
+- Order placed (customer)
+- Order status changed (customer)
+- New order alert (admin)
+- New review alert (admin)
+- 2FA enabled/disabled (user)
+
+### UI
+- **Nav bar** — Wine red to white gradient; customer sees Books, Categories, Cart, My Orders, Notifications, Name; admin sees Home, View Orders, Manage Books, Name
+- **Responsive** — Tailwind CSS for mobile-friendly layout
+
+---
+
+## Setup
+
+### Prerequisites
+- PHP >= 8.2, Composer
+- Node.js >= 18, npm
+- MySQL
+
+### 1. Install
 
 ```bash
-git clone <repository-url> pageturner-bookstore
+git clone https://github.com/Jugskn/pageturner-bookstore.git
 cd pageturner-bookstore
 
 composer install
 npm install
 ```
 
-### 3. Environment Configuration
+### 2. Configure
 
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-Open `.env` and configure your database and mail settings:
-
-```
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=pageturner_bookstore
-DB_USERNAME=root
-DB_PASSWORD=
-
-MAIL_MAILER=smtp
-MAIL_HOST=127.0.0.1
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS="hello@pageturner.test"
-MAIL_FROM_NAME="PageTurner Bookstore"
-```
-
-Make sure the `pageturner_bookstore` database exists in MySQL before proceeding:
+Edit `.env`: set database credentials and mail (e.g., Mailtrap or `MAIL_MAILER=log` for local testing).
 
 ```sql
 CREATE DATABASE pageturner_bookstore;
 ```
 
-### 4. Run Migrations and Seed Data
+### 3. Migrate & Seed
 
 ```bash
 php artisan migrate:fresh --seed
-```
-
-This creates all tables and seeds the database with:
-- 1 admin account (email verified)
-- 1 test customer account (email verified)
-- 5 categories
-- 20 sample books
-- Notifications table for database notifications
-
-### 5. Build Frontend Assets
-
-```bash
 npm run build
 ```
 
-For development with hot-reload:
-
-```bash
-npm run dev
-```
-
-### 6. Start the Server
+### 4. Run
 
 ```bash
 php artisan serve
 ```
 
-Visit **http://localhost:8000** in your browser.
+Visit **http://localhost:8000**
 
 ---
 
-## Test Account Credentials
+## Test Accounts
 
-| Role     | Email             | Password   |
-|----------|-------------------|------------|
-| Admin    | admin@admin.com   | password   |
-| Customer | customer@test.com | password   |
-
-Both test accounts come with verified email addresses. You can also register new accounts via the Register page (new accounts will need to verify their email).
+| Role     | Email             | Password |
+|----------|-------------------|----------|
+| Admin    | admin@admin.com   | password |
+| Customer | customer@test.com | password |
 
 ---
 
-## Features
+## Order Flow
 
-### Authentication & Security
-- **Email Verification** — new users must verify their email before placing orders or writing reviews
-- **Password Reset** — full forgot-password flow with secure reset tokens via email
-- **Two-Factor Authentication (2FA)** — optional email-based OTP; users can enable/disable from their profile
-- **Recovery Codes** — 8 backup recovery codes generated when 2FA is enabled
-- **Login Rate Limiting** — 5 attempts per minute per email/IP combination
-- **Session Regeneration** — session is regenerated after login to prevent fixation
-- **Logout Other Devices** — all other sessions are invalidated when password is changed
-
-### Email Notifications
-- **Order Placed** — customer receives confirmation email with order details
-- **Order Status Changed** — customer notified when admin updates order status
-- **New Order (Admin)** — all admins notified when a new order is created
-- **New Review (Admin)** — all admins notified when a review is submitted
-- **2FA Toggled** — user notified when 2FA is enabled or disabled
-
-### Customer Features
-- **Personalized Dashboard** — order summary, recent purchases, review activity, account status
-- Browse books and filter by category
-- View book details and reviews
-- Add books to a session-based shopping cart
-- Place orders with a shipping address
-- View order history and order details
-- Write reviews (verified purchasers only)
-- Edit profile (name, email) and update password
-- Enable/disable Two-Factor Authentication
-
-### Admin Features
-- **Admin Dashboard** — total users/books/categories/orders, order status summary, recent orders and reviews
-- **Manage Books** — add, edit, delete books; toggle status between Available and Sold
-- **Manage Categories** — full CRUD for book categories
-- **View Orders** — see all customer orders with customer info, item details, and totals
-- **Update Order Status** — change order status (Pending, Paid, Shipped, Completed, Cancelled)
-
-### Authorization & Policies
-- **BookPolicy** — only admins can create, update, or delete books
-- **CategoryPolicy** — only admins can create, update, or delete categories
-- **OrderPolicy** — owners can view their orders; only admins can update status
-- **ReviewPolicy** — only verified email + verified purchasers can write reviews
-
-### Middleware Stack
-- `auth` — requires authentication
-- `verified` — requires email verification
-- `2fa` — requires two-factor verification if enabled
-- `role:admin` — restricts to admin users only
-- `throttle` — rate limiting on sensitive routes (login, email verification)
+1. **Place Order** → Status: **Shipped**
+2. **Order Received** → Status: **Completed** → Write Review / Buy Again
+3. **Cancel Order** → Status: **Cancelled** (available for Shipped orders)
 
 ---
 
-## Database Schema
+## Tech Stack
 
-Key tables:
-- `users` — includes `role`, `two_factor_enabled`, `two_factor_code`, `two_factor_expires_at`, `two_factor_recovery_codes`
-- `books` — includes `status` (available/sold)
-- `categories`
-- `orders` — includes `shipping_address`, `status`, `total_amount`
-- `order_items`
-- `reviews`
-- `password_reset_tokens`
-- `sessions`
-- `notifications` — for database-stored notifications
-
----
-
-## Additional Notes
-
-- **Mail testing** — for local development, use [Mailpit](https://github.com/axllent/mailpit) or [Mailtrap](https://mailtrap.io/) to capture emails without sending them to real addresses.
-- **Session driver** is set to `database`. If you see a 419 (Page Expired) error after running `migrate:fresh`, do a hard refresh (Ctrl+Shift+R) in your browser to clear the stale session cookie.
-- **Config cache** — if you encounter unexpected database connection errors, run `php artisan config:clear`.
-- Books marked as **Sold** by the admin are hidden from the public catalog but remain visible in the admin Manage Books table.
-- All book cover images currently use a placeholder image from Unsplash.
-- The cart is session-based (not stored in the database), so it resets when the session expires or the user logs out.
+- Laravel 12
+- Tailwind CSS
+- Alpine.js
+- MySQL
+- Blade templates
